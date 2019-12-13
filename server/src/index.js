@@ -16,9 +16,7 @@ const store = createStore();
 // Apollo Server will automatically add the launchAPI and userAPI to our resolvers' context so we can easily call them.
 const server = new ApolloServer({
     typeDefs,
-
     resolvers,
-
     dataSources: () => ({
         launchAPI: new LaunchAPI(),
         userAPI: new UserAPI({
