@@ -14,6 +14,8 @@ const typeDefs = gql `
     # that describes what data we can fetch.
     # all types in GraphQL are nullable by default
     type Query {
+        artist(name: String!): Artist
+
         launches(
           """
           The number of results to show. Must be >= 1. Default = 20
@@ -29,6 +31,20 @@ const typeDefs = gql `
       }
 
     # GraphQL object type
+
+    type Artist {
+        id: ID
+        name: String
+        image: String
+        followers: Int
+        tracks: [Track]
+    }
+
+    type Track {
+        name: String
+        image: String
+        previewUrl: String
+    }
 
     # primitive type like ID, String, Boolean, or Int, 
     # custom scalars like Date
