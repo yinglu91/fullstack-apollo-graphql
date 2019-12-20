@@ -1,34 +1,44 @@
-const {
-    ApolloServer
-} = require('apollo-server');
-const typeDefs = require('./schema');
-const {
-    createStore
-} = require('./utils');
+const { ApolloServer } = require("apollo-server");
+const isEmail = require("isemail");
 
-const resolvers = require('./resolvers');
+const typeDefs = require("./schema");
 
-const ArtistAPI = require('./datasources/artist');
-const LaunchAPI = require('./datasources/launch');
-const UserAPI = require('./datasources/user');
+const resolvers = require("./resolvers");
 
+const ArtistAPI = require("./datasources/artist");
+const LaunchAPI = require("./datasources/launch");
+const UserAPI = require("./datasources/user");
+
+const { createStore } = require("./utils");
 const store = createStore();
 
 // Apollo Server will automatically add the launchAPI and userAPI to our resolvers' context so we can easily call them.
 const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    dataSources: () => ({
-        artistAPI: new ArtistAPI(),
-        launchAPI: new LaunchAPI(),
-        userAPI: new UserAPI({
-            store
-        })
+  typeDefs,
+  resolvers,
+  dataSources: () => ({
+    artistAPI: new ArtistAPI(),
+    launchAPI: new LaunchAPI(),
+    userAPI: new UserAPI({
+      store
     })
+  }),
+  context: async ({ req }) => {
+    // simple auth check on every request
+    const auth = (req.headers && req.headers.authorization) || "";
+    const email = Buffer.from(auth, "base64").toString("ascii");
+    if (!isEmail.validate(email)) {
+      return { user: null };
+    }
+
+    // find a user by their email
+    const users = await store.users.findOrCreate({ where: { email } });
+    const user = (users && users[0]) || null;
+
+    return { user: { ...user.dataValues } };
+  }
 });
 
-server.listen().then(({
-    url
-}) => {
-    console.log(`🚀 Server ready at ${url}`);
+server.listen().then(({ url }) => {
+  console.log(`🚀 Server ready at ${url}`);
 });
