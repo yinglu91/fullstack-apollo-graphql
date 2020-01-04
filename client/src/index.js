@@ -4,22 +4,23 @@ import { HttpLink } from 'apollo-link-http';
 import { ApolloProvider } from '@apollo/react-hooks';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Pages from './pages';
+import App from './App';
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
-    uri: 'http://localhost:4000/'
+  uri: 'http://localhost:4000/'
 });
 
 const client = new ApolloClient({
-    cache,
-    link
+  cache,
+  link
 });
 
 // above is the instantiation of the client object.
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <Pages />
-  </ApolloProvider>, document.getElementById('root')
+    <App />
+  </ApolloProvider>,
+  document.getElementById('root')
 );
